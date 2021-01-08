@@ -6,20 +6,12 @@ using TMPro;
 
 public class Game
 {
-    public List<Card> EnemyDeck, PlayerDeck,
-                      EnemyHand, PlayerHand,  
-                      EnemyField, PlayerField;
+    public List<Card> EnemyDeck, PlayerDeck;
 
     public Game()
     {
         EnemyDeck = GiveDeckCard();
         PlayerDeck = GiveDeckCard();
-        
-        EnemyHand = new List<Card>();
-        PlayerHand = new List<Card>();
-        
-        EnemyField = new List<Card>();
-        PlayerField = new List<Card>();
     }
 
     List<Card> GiveDeckCard()
@@ -39,6 +31,17 @@ public class GameManagerScr : MonoBehaviour
     private int Turn, TurnTime = 30;
     public TextMeshProUGUI TurmTimeTxt;
     public Button EndTurnBtn;
+
+    public List<CardInfoScr>    PlayerHandCards = new List<CardInfoScr>(),
+                                PlayerFieldCards = new List<CardInfoScr>(),
+                                EnemyHandCards = new List<CardInfoScr>(),
+                                EnemyFieldCards = new List<CardInfoScr>();
+    
+    public void LateUpdate()
+    {
+        
+        
+    }
 
     public bool IsPlayerTurn
     {
@@ -77,10 +80,15 @@ public class GameManagerScr : MonoBehaviour
         GameObject cardGO = Instantiate(CardPref, hand, false);
 
         if (hand == EnemyHand)
+        {
             cardGO.GetComponent<CardInfoScr>().HideCardInfo(card);
-        else
+            EnemyHandCards.Add(cardGO.GetComponent<CardInfoScr>());
+        }
+        else{
             cardGO.GetComponent<CardInfoScr>().ShowCardInfo(card);
-
+            PlayerHandCards.Add(cardGO.GetComponent<CardInfoScr>());
+            
+        }
         deck.RemoveAt(0);
     }
 

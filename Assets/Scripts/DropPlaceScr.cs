@@ -25,6 +25,8 @@ public class DropPlaceScr : MonoBehaviour, IDropHandler, IPointerEnterHandler, I
 
         if (card)
         {
+            card.GameManager.PlayerHandCards.Remove(card.GetComponent<CardInfoScr>());
+            card.GameManager.PlayerFieldCards.Add(card.GetComponent<CardInfoScr>());
             card.DefaultParent = transform;
         }
     }
