@@ -293,8 +293,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18.802, y: -137}
-  m_SizeDelta: {x: 1104.7795, y: 238.22498}
+  m_AnchoredPosition: {x: 24.508, y: -137}
+  m_SizeDelta: {x: 1157.3516, y: 238.22498}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &273258484
 MonoBehaviour:
@@ -484,9 +484,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnemyHand: {fileID: 612524818}
   PlayerHand: {fileID: 1993581482}
+  EnemyField: {fileID: 840510235}
+  PlayerField: {fileID: 273258483}
   CardPref: {fileID: 5925013083035215347, guid: 65744b6a903740248a62ccc2964c7d1d, type: 3}
   TurmTimeTxt: {fileID: 32873510}
   EndTurnBtn: {fileID: 1456835025}
+  PlayerHandCards: []
+  PlayerFieldCards: []
+  EnemyHandCards: []
+  EnemyFieldCards: []
 --- !u!1 &534412486
 GameObject:
   m_ObjectHideFlags: 0
@@ -790,8 +796,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18.8, y: 119.11}
-  m_SizeDelta: {x: 1104.7749, y: 238.22498}
+  m_AnchoredPosition: {x: 24.5, y: 119.11}
+  m_SizeDelta: {x: 1157.3352, y: 238.22498}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &840510236
 MonoBehaviour:
