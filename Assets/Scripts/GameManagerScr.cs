@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Random = UnityEngine.Random;
 
 public class Game
 {
@@ -32,16 +34,20 @@ public class GameManagerScr : MonoBehaviour
     public TextMeshProUGUI TurmTimeTxt;
     public Button EndTurnBtn;
 
+    public int PlayerMana = 10; 
+    public int EnemyMana = 10;
+    public TextMeshProUGUI PlayerManaText, EnemyManaText;
+
+    public int PlayerHP, EnemyHP; 
+    public TextMeshProUGUI PlayerHPText, EnemyHPText;
+
+    public GameObject ResultGO;
+    public TextMeshProUGUI ResultText;
+    
     public List<CardInfoScr>    PlayerHandCards = new List<CardInfoScr>(),
                                 PlayerFieldCards = new List<CardInfoScr>(),
                                 EnemyHandCards = new List<CardInfoScr>(),
                                 EnemyFieldCards = new List<CardInfoScr>();
-    
-    public void LateUpdate()
-    {
-        
-        
-    }
 
     public bool IsPlayerTurn
     {
@@ -60,6 +66,10 @@ public class GameManagerScr : MonoBehaviour
         GiveHandCards(CurrentGame.EnemyDeck, EnemyHand);
         GiveHandCards(CurrentGame.PlayerDeck, PlayerHand);
 
+        PlayerHP = EnemyHP = 30;
+        
+        ShowMana();
+        
         StartCoroutine(TurnFunc());
     }
 
@@ -145,28 +155,41 @@ public class GameManagerScr : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            if(EnemyFieldCards.Count > 5)
-                return;
-            
-            cards[0].ShowCardInfo(cards[0].SelfCard, false);
-            cards[0].transform.SetParent(EnemyField);
+            if(EnemyFieldCards.Count > 5 || EnemyMana == 0)
+                break;
 
-            EnemyFieldCards.Add(cards[0]);
-            EnemyFieldCards.Remove(cards[0]);
+            List<CardInfoScr> cardList = cards.FindAll(x => EnemyMana >= x.SelfCard.Manacost);
+            
+            if(cardList.Count == 0)
+                break;
+            
+            ReduceMana(false, cardList[0].SelfCard.Manacost);
+
+            cardList[0].ShowCardInfo(cardList[0].SelfCard, false);
+            cardList[0].transform.SetParent(EnemyField);
+
+            EnemyFieldCards.Add(cardList[0]);
+            EnemyFieldCards.Remove(cardList[0]);
         }
 
         foreach (var activeCard in EnemyFieldCards.FindAll(x => x.SelfCard.CanAttack))
         {
-            if (PlayerFieldCards.Count == 0)
-                return;
+            if (Random.Range(0, 2) == 0 && PlayerFieldCards.Count > 0)
+            {
+                var enemy = PlayerFieldCards[Random.Range(0, PlayerFieldCards.Count)];
 
-            var enemy = PlayerFieldCards[Random.Range(0, PlayerFieldCards.Count)];
-
-            Debug.Log(activeCard.SelfCard.Name + " (" + activeCard.SelfCard.Attack + " ;" + activeCard.SelfCard.Defense + ")" +
-                      " ----->" + enemy.SelfCard.Name + " ( " + enemy.SelfCard.Attack + " ;" + enemy.SelfCard.Defense + " )");
-            
-            activeCard.SelfCard.ChangeAttackState(false);
-            CardsFight(enemy, activeCard);
+                Debug.Log(activeCard.SelfCard.Name + " (" + activeCard.SelfCard.Attack + ";" + activeCard.SelfCard.Defense + ") " +
+                          "---->" + enemy.SelfCard.Name + " (" + enemy.SelfCard.Attack + ";" + enemy.SelfCard.Defense + ")");
+                
+                activeCard.SelfCard.ChangeAttackState(false);
+                CardsFight(enemy, activeCard);
+            }
+            else
+            {
+                Debug.Log(activeCard.SelfCard.Name + " (" + activeCard.SelfCard.Attack + ") Attacked Hero" );
+                activeCard.SelfCard.ChangeAttackState(false);
+                DamageHero(activeCard, false);
+            }
         }
     }
 
@@ -178,7 +201,14 @@ public class GameManagerScr : MonoBehaviour
         EndTurnBtn.interactable = IsPlayerTurn;
 
         if (IsPlayerTurn)
+        {
             GiveNewCards();
+
+            PlayerMana = 10;
+            EnemyMana = 10;
+
+            ShowMana();
+        }
 
         StartCoroutine(TurnFunc());
     }
@@ -216,5 +246,64 @@ public class GameManagerScr : MonoBehaviour
             PlayerFieldCards.Remove(card);
         
         Destroy(card.gameObject);
+    }
+
+    void ShowMana()
+    {
+        PlayerManaText.text = PlayerMana.ToString();
+        EnemyManaText.text = EnemyMana.ToString();
+    }
+
+    void ShowHP()
+    {
+        PlayerHPText.text = PlayerHP.ToString();
+        EnemyHPText.text = EnemyHP.ToString();
+    }
+
+    public void ReduceMana(bool playerMana, int manacost)
+    {
+        if (playerMana)
+        {
+            PlayerMana = Mathf.Clamp(PlayerMana - manacost, 0, int.MaxValue);  
+        }
+        else
+        {
+            EnemyMana = Mathf.Clamp(EnemyMana - manacost, 0, int.MaxValue);  
+        }
+        ShowMana();
+    }
+
+    public void DamageHero(CardInfoScr card, bool isEnemyAttacked )
+    {
+        if (isEnemyAttacked)
+        {
+            EnemyHP = Mathf.Clamp(EnemyHP - card.SelfCard.Attack, 0, int.MaxValue);
+        }
+        else
+        {
+            PlayerHP = Mathf.Clamp(PlayerHP - card.SelfCard.Attack, 0, int.MaxValue);
+        }
+
+        ShowHP();
+        card.DeHighlightCard();    
+        CheckForResult();
+    }
+
+    void CheckForResult()
+    {
+        if (EnemyHP == 0 || PlayerHP == 0)
+        {
+            ResultGO.SetActive(true);
+            StopAllCoroutines();
+            
+            if (EnemyHP == 0)
+            {
+                ResultText.text = "YOU ARE WIN!";
+            }
+            else
+            {
+                ResultText.text = "YOU ARE LOSE...";
+            }
+        }
     }
 }
